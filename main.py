@@ -43,7 +43,7 @@ save_dir = 'data'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
-for post in subreddit.top(limit=None):
+for post in subreddit.new(limit=None):
     # commentString = ""
 
     # post.comments.replace_more(limit=2)
