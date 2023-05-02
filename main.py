@@ -1,4 +1,3 @@
-
 import pprint
 import config
 import praw
@@ -38,6 +37,7 @@ subreddit = reddit.subreddit("technology")
 
 data_size = 0
 file_num = 1
+
 
 save_dir = 'data'
 if not os.path.exists(save_dir):
@@ -98,9 +98,9 @@ for post in subreddit.top(limit=None):
 
 
 
-    """ More debugging
+    """ More console debugging
     print("\n-------------------------------------------------------------------------------------------------------\n")
-    
+
     # Just looking at the attributes of a submission
     pprint.pprint(vars(post))
     """
