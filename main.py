@@ -3,6 +3,7 @@ import pprint
 import config
 import praw
 import json
+import re
 
 # Entering the json files name into a string
 JsonDataPostFileName = "data_file.json"
@@ -51,7 +52,11 @@ for post in SubredditToCrawl:
     for comment in post.comments.list():
         commentString = commentString + comment.body
 
-    # Entering data of a post from reddit to list
+    #finds all HTML urls that may be inside each reddit post. This is useful for part B of the project.
+    text = post.selftext
+    urls = re.findall('(https?://[^\s]+)', text)
+    
+    # Entering data of a post from reddit to list\
     ListObj.append({
         "Post ID": post.id,
         "Post Author": redditor1.name,
@@ -61,7 +66,8 @@ for post in SubredditToCrawl:
         "Post Upvote Ratio": post.upvote_ratio,
         "Post Permalink": post.permalink,
         "Post Number Of Comments": post.num_comments,
-        "Comments": commentString
+        "Comments": commentString,
+        "HTML Links": urls
     })
 
     # Entering data from list into json file
