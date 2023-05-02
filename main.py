@@ -4,16 +4,20 @@ import config
 import praw
 import json
 import re
+import os
+import requests
+from bs4 import BeautifulSoup
 
-# Entering the json files name into a string
-JsonDataPostFileName = "data_file.json"
 
-# Creating an empty Python list
-ListObj = []
+# # Entering the json files name into a string
+# JsonDataPostFileName = "data_file.json"
 
-# Clear the json file before adding data
-with open(JsonDataPostFileName, "w") as write_file:
-    json.dump(ListObj, write_file, indent=4)
+# # Creating an empty Python list
+# ListObj = []
+
+# # Clear the json file before adding data
+# with open(JsonDataPostFileName, "w") as write_file:
+#     json.dump(ListObj, write_file, indent=4)
 
 # Acquiring reddit app credentials
 reddit = praw.Reddit(
@@ -27,52 +31,72 @@ print("Is Read Only?: ", reddit.read_only)
 print("\n")
 
 # Retrieving subreddit information
-SubredditToCrawl = reddit.subreddit("ucr").hot(limit=8)
+# SubredditToCrawl = reddit.subreddit("technology").new(limit=None)
 
-# Iterating through posts(AKA Submissions) of the subreddit above^^
-for post in SubredditToCrawl:
-    # Getting posts author
-    redditor1 = post.author
+# CHANGE THIS TO A SUBREDDIT OF YOUR CHOICE AND RUN OVERNIGHT
+subreddit = reddit.subreddit("technology")
 
-    """ console debugging 
-    print("Post Identification:", post.id) # Submission id, will need for part B, do need
-    print("Post Title:", post.title) # Title of submission, do need
-    print("Post Body:", post.selftext) # Body of submission, do need
-    print("Post Score:", post.score) # Submission upvotes, don't need but can be useful for determining weights for part B
-    print("Post Upvote Rate:", post.upvote_ratio) # Upvote to downvote ratio of submission, don't need but can be useful for determining weights for part B
-    # print("Post Image URL:", post.url) # Images in post, don't need
-    print("Post URL Permalink:", post.permalink) # Url of post, don't need
-    print("Post Number of Comments:", post.num_comments) # Number of comments under submission, don't need but can be useful for determining weights for part B
-    """
-    # Create an empty string to use for concatenating comments of a post
-    commentString = ""
+data_size = 0
+file_num = 1
 
-    # Iterate through comments limit times
-    post.comments.replace_more(limit=2)
-    for comment in post.comments.list():
-        commentString = commentString + comment.body
+save_dir = 'data'
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
 
-    #finds all HTML urls that may be inside each reddit post. This is useful for part B of the project.
+for post in subreddit.top(limit=None):
+    # commentString = ""
+
+    # post.comments.replace_more(limit=2)
+    # for comment in post.comments.list():
+    #     commentString = commentString + comment.body
+    
     text = post.selftext
     urls = re.findall('(https?://[^\s]+)', text)
-    
-    # Entering data of a post from reddit to list\
-    ListObj.append({
+    urlTitles = []
+
+    for url in urls: 
+        try:
+            response = requests.get(url)
+        except requests.exceptions.RequestException as e:
+            print(f'The page {url} could not be found: {e}')
+            continue
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        if soup and soup.title and soup.title.string:
+            urlTitles.append(soup.title.string)
+
+    data = ({
         "Post ID": post.id,
-        "Post Author": redditor1.name,
         "Post Title": post.title,
         "Post Body": post.selftext,
         "Post Score": post.score,
         "Post Upvote Ratio": post.upvote_ratio,
         "Post Permalink": post.permalink,
         "Post Number Of Comments": post.num_comments,
-        "Comments": commentString,
-        "HTML Links": urls
+        "HTML Urls:": urls,
+        "HTML Titles": urlTitles
     })
 
-    # Entering data from list into json file
-    with open(JsonDataPostFileName, "w") as write_file:
-        json.dump(ListObj, write_file, indent=4)
+    json_data = json.dumps(data, indent=4)
+
+    
+    if data_size + len(json_data) > 10 * 1024 * 1024:
+        file_num+=1
+        data_size = 0
+    
+    if file_num > 50:
+        break
+
+    filename = f'data/post_{file_num}.json'
+    # with open(filename, "w") as write_file:
+    #     json.dump(data, write_file, indent=4)
+    #     data_size += len(json_data)
+  
+    with open(filename,  'a') as f:
+        f.write(json_data + '\n')
+        data_size += len(json_data)
+
+
 
     """ More debugging
     print("\n-------------------------------------------------------------------------------------------------------\n")
