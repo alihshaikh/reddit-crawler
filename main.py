@@ -1,11 +1,10 @@
-
 import pprint
 import config
 import praw
 import json
 import re
 
-# Entering the json files name into a string
+# Entering the json files' name into a string
 JsonDataPostFileName = "data_file.json"
 
 # Creating an empty Python list
@@ -47,16 +46,16 @@ for post in SubredditToCrawl:
     # Create an empty string to use for concatenating comments of a post
     commentString = ""
 
-    # Iterate through comments limit times
-    post.comments.replace_more(limit=2)
+    # Iterate through ALL comments of a post
+    post.comments.replace_more(limit=None)
     for comment in post.comments.list():
         commentString = commentString + comment.body
 
-    #finds all HTML urls that may be inside each reddit post. This is useful for part B of the project.
+    # finds all HTML urls that may be inside each reddit post. This is useful for part B of the project.
     text = post.selftext
     urls = re.findall('(https?://[^\s]+)', text)
-    
-    # Entering data of a post from reddit to list\
+
+    # Entering data of a reddit post to a list
     ListObj.append({
         "Post ID": post.id,
         "Post Author": redditor1.name,
@@ -74,9 +73,9 @@ for post in SubredditToCrawl:
     with open(JsonDataPostFileName, "w") as write_file:
         json.dump(ListObj, write_file, indent=4)
 
-    """ More debugging
+    """ More console debugging
     print("\n-------------------------------------------------------------------------------------------------------\n")
-    
+
     # Just looking at the attributes of a submission
     pprint.pprint(vars(post))
     """
