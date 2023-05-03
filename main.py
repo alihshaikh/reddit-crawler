@@ -33,7 +33,8 @@ print("\n")
 # SubredditToCrawl = reddit.subreddit("technology").new(limit=None)
 
 # CHANGE THIS TO A SUBREDDIT OF YOUR CHOICE AND RUN OVERNIGHT
-subreddit = reddit.subreddit("UpliftingNews")
+
+subreddit = reddit.subreddit("technology")
 
 data_size = 0
 file_num = 1
@@ -46,9 +47,11 @@ if not os.path.exists(save_dir):
 for post in subreddit.top(limit=None):
     commentString = ""
 
-    post.comments.replace_more(limit=2)
-    for comment in post.comments.list():
-        commentString = commentString + comment.body
+
+
+    # post.comments.replace_more(limit=2)
+    # for comment in post.comments.list():
+    #     commentString = commentString + comment.body
     
     text = post.selftext
     urls = re.findall('(https?://[^\s]+)', text)
@@ -77,7 +80,6 @@ for post in subreddit.top(limit=None):
         "Post Upvote Ratio": post.upvote_ratio,
         "Post Permalink": post.permalink,
         "Post Number Of Comments": post.num_comments,
-        "Comments": commentString,
         "HTML Urls:": urls,
         "HTML Titles": urlTitles
     })
