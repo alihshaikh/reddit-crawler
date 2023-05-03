@@ -57,7 +57,7 @@ for post in subreddit.top(limit=None):
 
 
 
-    post.comments.replace_more(limit=2)
+    post.comments.replace_more(limit=None)
     for comment in post.comments.list():
         commentString = commentString + comment.body
     
