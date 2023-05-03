@@ -34,7 +34,7 @@ print("\n")
 
 # CHANGE THIS TO A SUBREDDIT OF YOUR CHOICE AND RUN OVERNIGHT
 
-subreddit = reddit.subreddit("technology")
+subreddit = reddit.subreddit("nba")
 
 data_size = 0
 file_num = 1
@@ -44,7 +44,15 @@ save_dir = 'data'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
-for post in subreddit.top(limit=None):
+i = 0
+while(os.path.exists(f'data/post_{file_num}.json')):
+    i+=1
+    file_num+=1
+
+file_num -=1
+ 
+
+for post in subreddit.new(limit=None):
     commentString = ""
 
 
@@ -59,7 +67,7 @@ for post in subreddit.top(limit=None):
 
     for url in urls: 
         try:
-            response = requests.get(url, verify=false)
+            response = requests.get(url)
         except requests.exceptions.RequestException as e:
             print(f'The page {url} could not be found: {e}')
             continue
