@@ -86,10 +86,10 @@ for post in subreddit.top(limit=None):
 
     
     filename = f'data/post_{file_num}.json'
-    if (os.path.getsize(filename) / (1024*1024)) > 10:
+    while (os.path.getsize(filename) / (1024*1024)) > 10:
         file_num+=1
+        filename = f'data/post_{file_num}.json'
         data_size = 0
-    filename = f'data/post_{file_num}.json'
     if file_num > 50:
         break
 
