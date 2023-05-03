@@ -52,14 +52,14 @@ while(os.path.exists(f'data/post_{file_num}.json')):
 file_num -=1
  
 
-for post in subreddit.new(limit=None):
+for post in subreddit.top(limit=None):
     commentString = ""
 
 
 
-    # post.comments.replace_more(limit=2)
-    # for comment in post.comments.list():
-    #     commentString = commentString + comment.body
+    post.comments.replace_more(limit=2)
+    for comment in post.comments.list():
+        commentString = commentString + comment.body
     
     text = post.selftext
     urls = re.findall('(https?://[^\s]+)', text)
