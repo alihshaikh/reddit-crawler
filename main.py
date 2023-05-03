@@ -33,7 +33,7 @@ print("\n")
 # SubredditToCrawl = reddit.subreddit("technology").new(limit=None)
 
 # CHANGE THIS TO A SUBREDDIT OF YOUR CHOICE AND RUN OVERNIGHT
-subreddit = reddit.subreddit("worldnews")
+subreddit = reddit.subreddit("UpliftingNews")
 
 data_size = 0
 file_num = 1
@@ -43,7 +43,7 @@ save_dir = 'data'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
 
-for post in subreddit.new(limit=None):
+for post in subreddit.top(limit=None):
     commentString = ""
 
     post.comments.replace_more(limit=2)
@@ -56,10 +56,14 @@ for post in subreddit.new(limit=None):
 
     for url in urls: 
         try:
-            response = requests.get(url)
+            response = requests.get(url, verify=false)
         except requests.exceptions.RequestException as e:
             print(f'The page {url} could not be found: {e}')
             continue
+        except requests.exceptions.HTTPError as e:
+            print(f'The page {url} has an HTTP error: {e}')
+        except Exception as e:
+            print(f'The page {url} has an error: {e}')
         
         soup = BeautifulSoup(response.content, 'html.parser')
         if soup and soup.title and soup.title.string:
@@ -81,14 +85,14 @@ for post in subreddit.new(limit=None):
     json_data = json.dumps(data, indent=4)
 
     
-    if data_size + len(json_data) > 10 * 1024 * 1024:
+    filename = f'data/post_{file_num}.json'
+    if (os.path.getsize(filename) / (1024*1024)) > 10:
         file_num+=1
         data_size = 0
-    
+    filename = f'data/post_{file_num}.json'
     if file_num > 50:
         break
 
-    filename = f'data/post_{file_num}.json'
     # with open(filename, "w") as write_file:
     #     json.dump(data, write_file, indent=4)
     #     data_size += len(json_data)
