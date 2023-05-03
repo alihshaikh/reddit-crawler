@@ -88,6 +88,7 @@ for post in subreddit.top(limit=None):
         "Post Upvote Ratio": post.upvote_ratio,
         "Post Permalink": post.permalink,
         "Post Number Of Comments": post.num_comments,
+        "Comments": commentString,
         "HTML Urls:": urls,
         "HTML Titles": urlTitles
     })
