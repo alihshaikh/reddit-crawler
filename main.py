@@ -7,16 +7,9 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-
-# # Entering the json files name into a string
-# JsonDataPostFileName = "data_file.json"
-
-# # Creating an empty Python list
-# ListObj = []
-
-# # Clear the json file before adding data
-# with open(JsonDataPostFileName, "w") as write_file:
-#     json.dump(ListObj, write_file, indent=4)
+UserSubreddit = input("Please enter a subreddit that you would like to crawl then press enter,"
+                      " omit 'r/'. (For example if you want to crawl r/ucr, enter 'ucr'): ")
+print("Crawling:", UserSubreddit)
 
 # Acquiring reddit app credentials
 reddit = praw.Reddit(
@@ -25,16 +18,7 @@ reddit = praw.Reddit(
     user_agent=config.clientSecret,
 )
 
-# Seeing if we are on a read only instance
-print("Is Read Only?: ", reddit.read_only)
-print("\n")
-
-# Retrieving subreddit information
-# SubredditToCrawl = reddit.subreddit("technology").new(limit=None)
-
-# CHANGE THIS TO A SUBREDDIT OF YOUR CHOICE AND RUN OVERNIGHT
-
-subreddit = reddit.subreddit("nba")
+subreddit = reddit.subreddit(UserSubreddit)
 
 data_size = 0
 file_num = 1
@@ -43,7 +27,10 @@ file_num = 1
 save_dir = 'data'
 if not os.path.exists(save_dir):
     os.makedirs(save_dir)
-
+    
+if not os.path.exists("post_0.json"):
+    open(f"data/post_0.json", 'a')
+    
 i = 0
 while(os.path.exists(f'data/post_{file_num}.json')):
     i+=1
@@ -54,8 +41,6 @@ file_num -=1
 
 for post in subreddit.top(limit=None):
     commentString = ""
-
-
 
     post.comments.replace_more(limit=None)
     for comment in post.comments.list():
@@ -103,20 +88,10 @@ for post in subreddit.top(limit=None):
     filename = f'data/post_{file_num}.json'
     if file_num > 50:
         break
-
-    # with open(filename, "w") as write_file:
-    #     json.dump(data, write_file, indent=4)
-    #     data_size += len(json_data)
   
     with open(filename,  'a') as f:
         f.write(json_data + '\n')
         data_size += len(json_data)
 
-
-
-    """ More console debugging
-    print("\n-------------------------------------------------------------------------------------------------------\n")
-
-    # Just looking at the attributes of a submission
-    pprint.pprint(vars(post))
-    """
+print("JSONS POPULATED")
+print("DONE")
